@@ -1,686 +1,862 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blenkir · Sede Huancayo</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blenkir · Sede Huancayo</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Bootstrap 5 + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-<!--  PANTALLA 1 · INICIO DE SESIÓN-->
-<section id="pantallaLogin" class="login-screen">
-  <div class="login-card">
-    <div class="brand-mark mx-auto mb-3">
-      <img src="img/logo.png" alt="Logo Colegios Blenkir">
-    </div>
-    <h1 class="login-title">Blenkir</h1>
-    <p class="login-sub">Sede Huancayo </p>
-
-    <form id="formLogin" class="d-flex flex-column gap-3 mt-4" novalidate>
-      <div>
-        <label class="form-label" for="loginUsuario">Usuario</label>
-        <input type="text" class="form-control" id="loginUsuario" placeholder="Usuario" autocomplete="username" required>
-      </div>
-      <div>
-        <label class="form-label" for="loginPassword">Contraseña</label>
-        <input type="password" class="form-control" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required>
-      </div>
-      <div id="loginError" class="login-error d-none">Usuario o contraseña incorrectos.</div>
-      <button type="submit" class="btn btn-brand mt-1">Ingresar</button>
-    </form>
-
-    <p class="login-hint mt-4">
-      Administrador: <code>admin / admin123</code><br>
-      Docente: <code>docente / docente123</code><br>
-      Alumno: <code>alumno / alumno123</code>
-    </p>
-  </div>
-</section>
-
-<!-- APP -->
-<div id="appShell" class="app-wrap d-none">
-
-  <header class="topbar">
-    <div class="d-flex align-items-center justify-content-between flex-wrap py-2 px-3">
-      <div class="d-flex align-items-center gap-3 brand">
-        <button id="btnMenu" class="btn-icon d-lg-none" aria-label="Abrir menú">☰</button>
-        <div class="brand-mark brand-mark-sm">
-          <img src="img/logo.png" alt="Logo Colegios Blenkir">
-        </div>
-        <div>
-          <h1 class="brand-name mb-0">Colegios Blenkir</h1>
-          <span class="brand-sub">Sistema de Seguimiento Académico</span>
-        </div>
-      </div>
-      <div class="d-flex align-items-center gap-3">
-        <span class="user-chip">
-          <span id="userNombre">—</span>
-          <span id="userRol" class="badge-rol">—</span>
-        </span>
-        <button id="btnLogout" class="btn btn-outline-light btn-sm">Cerrar sesión</button>
-      </div>
-    </div>
-  </header>
-
-  <div class="app-body">
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <nav class="d-flex flex-column gap-1">
-        <button class="side-link active" data-view="dashboard" data-roles="Administrador,Docente"><i class="bi bi-house-fill"></i> Panel principal</button>
-        <button class="side-link" data-view="estudiantes" data-roles="Administrador"><i class="bi bi-people-fill"></i> Estudiantes</button>
-        <button class="side-link" data-view="academica" data-roles="Administrador"><i class="bi bi-mortarboard-fill"></i> Gestión académica</button>
-        <button class="side-link" data-view="calificaciones" data-roles="Docente"><i class="bi bi-pencil-square"></i> Calificaciones</button>
-        <button class="side-link" data-view="asistencia" data-roles="Docente"><i class="bi bi-calendar-check"></i> Asistencia</button>
-        <button class="side-link" data-view="reportes" data-roles="Administrador,Docente"><i class="bi bi-bar-chart-fill"></i> Reportes</button>
-        <button class="side-link" data-view="misnotas" data-roles="Alumno"><i class="bi bi-book-fill"></i> Mis notas</button>
-      </nav>
-    </aside>
-    <div class="sidebar-backdrop d-none" id="sidebarBackdrop"></div>
-
-    <!--  MAIN CONTENT  -->
-    <main class="main-content">
-
-      <!-- PANEL PRINCIPAL -->
-      <section class="view active" id="view-dashboard">
-        <!-- ADMINISTRADOR -->
-        <div class="role-dashboard" data-dashboard-role="Administrador">
-          <div class="dashboard-heading">
-            <div>
-              <span class="dashboard-eyebrow">SISTEMA DE SEGUIMIENTO ACADÉMICO</span>
-              <h2 class="view-title">¡Bienvenido, Administrador!</h2>
-              <p class="view-sub">Resumen general de la gestión académica del Colegio Blenkir.</p>
+    <!-- ============================================================
+    PANTALLA 1 · INICIO DE SESIÓN
+    ============================================================ -->
+    <section id="pantallaLogin" class="login-screen">
+        <div class="login-card">
+            <div class="brand-mark mx-auto mb-3">
+                <img src="img/logo.png" alt="Logo Colegios Blenkir" />
             </div>
-            <div class="dashboard-date"><i class="bi bi-calendar3"></i> Año escolar 2026</div>
-          </div>
+            <h1 class="login-title">Blenkir</h1>
+            <p class="login-sub">Sede Huancayo</p>
 
-          <div class="dashboard-grid professional-grid">
-            <button class="dash-card accent-blue" data-goto="estudiantes" data-roles="Administrador">
-              <span class="dash-icon"><i class="bi bi-people-fill"></i></span>
-              <span class="dash-label">Estudiantes activos</span>
-              <span class="dash-count" id="countEstudiantes">0</span>
-            </button>
-            <button class="dash-card accent-green" data-goto="academica" data-sub="docentes" data-roles="Administrador">
-              <span class="dash-icon"><i class="bi bi-person-workspace"></i></span>
-              <span class="dash-label">Docentes</span>
-              <span class="dash-count" id="countDocentes">0</span>
-            </button>
-            <button class="dash-card accent-purple" data-goto="academica" data-sub="cursos" data-roles="Administrador">
-              <span class="dash-icon"><i class="bi bi-book-half"></i></span>
-              <span class="dash-label">Cursos activos</span>
-              <span class="dash-count" id="countCursos">0</span>
-            </button>
-            <button class="dash-card accent-orange" data-goto="reportes">
-              <span class="dash-icon"><i class="bi bi-bar-chart-fill"></i></span>
-              <span class="dash-label">Calificaciones registradas</span>
-              <span class="dash-count" id="countNotas">0</span>
-            </button>
-          </div>
-
-          <div class="dashboard-columns">
-            <div class="panel-card">
-              <div class="panel-heading-row">
+            <form id="formLogin" class="d-flex flex-column gap-3 mt-4" novalidate>
                 <div>
-                  <h3 class="panel-title mb-0">Resumen académico</h3>
-                  <small>Estado actual del sistema</small>
-                </div>
-                <button class="btn btn-sm btn-outline-brand" data-goto="reportes">Ver reportes</button>
-              </div>
-              <div class="mini-stats">
-                <div><span>Asistencias</span><strong id="countAsistencias">0</strong></div>
-                <div><span>Estudiantes</span><strong id="adminStudents2">0</strong></div>
-                <div><span>Docentes</span><strong id="adminTeachers2">0</strong></div>
-                <div><span>Cursos</span><strong id="adminCourses2">0</strong></div>
-              </div>
-            </div>
-
-            <div class="panel-card quick-panel">
-              <h3 class="panel-title">Acciones rápidas</h3>
-              <div class="quick-actions">
-                <button class="quick-action" data-goto="estudiantes"><i class="bi bi-person-plus"></i><span>Registrar estudiante</span></button>
-                <button class="quick-action" data-goto="academica" data-sub="docentes"><i class="bi bi-person-plus-fill"></i><span>Gestionar docentes</span></button>
-                <button class="quick-action" data-goto="academica" data-sub="cursos"><i class="bi bi-journal-plus"></i><span>Gestionar cursos</span></button>
-                <button class="quick-action" data-goto="reportes"><i class="bi bi-file-earmark-bar-graph"></i><span>Generar reporte</span></button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- DOCENTE -->
-        <div class="role-dashboard d-none" data-dashboard-role="Docente">
-          <div class="dashboard-heading">
-            <div>
-              <span class="dashboard-eyebrow">MÓDULO DOCENTE</span>
-              <h2 class="view-title">¡Bienvenido, <span id="docenteWelcomeName">Docente</span>!</h2>
-              <p class="view-sub">Gestiona tus cursos, registra asistencia y calificaciones de tus estudiantes.</p>
-            </div>
-            <div class="dashboard-role-badge"><i class="bi bi-mortarboard-fill"></i> Docente</div>
-          </div>
-
-          <div class="dashboard-grid professional-grid">
-            <button class="dash-card accent-purple" data-goto="academica" data-sub="cursos">
-              <span class="dash-icon"><i class="bi bi-journal-bookmark-fill"></i></span>
-              <span class="dash-label">Mis cursos</span>
-              <span class="dash-count" id="teacherCourseCount">0</span>
-            </button>
-            <button class="dash-card accent-blue" data-goto="calificaciones">
-              <span class="dash-icon"><i class="bi bi-star-fill"></i></span>
-              <span class="dash-label">Calificaciones</span>
-              <span class="dash-count" id="teacherGradeCount">0</span>
-            </button>
-            <button class="dash-card accent-green" data-goto="asistencia">
-              <span class="dash-icon"><i class="bi bi-calendar-check-fill"></i></span>
-              <span class="dash-label">Registros de asistencia</span>
-              <span class="dash-count" id="teacherAttendanceCount">0</span>
-            </button>
-            <button class="dash-card accent-orange" data-goto="reportes">
-              <span class="dash-icon"><i class="bi bi-file-earmark-bar-graph-fill"></i></span>
-              <span class="dash-label">Reportes</span>
-              <span class="dash-count">→</span>
-            </button>
-          </div>
-
-          <div class="dashboard-columns">
-            <div class="panel-card">
-              <div class="panel-heading-row">
-                <div>
-                  <h3 class="panel-title mb-0">Mis cursos</h3>
-                  <small>Cursos asignados al docente</small>
-                </div>
-                <button class="btn btn-sm btn-outline-brand" data-goto="calificaciones">Gestionar</button>
-              </div>
-              <div id="teacherCoursesPreview" class="course-preview"></div>
-            </div>
-
-            <div class="panel-card quick-panel">
-              <h3 class="panel-title">Acciones rápidas</h3>
-              <div class="quick-actions">
-                <button class="quick-action" data-goto="asistencia"><i class="bi bi-calendar-check"></i><span>Registrar asistencia</span></button>
-                <button class="quick-action" data-goto="calificaciones"><i class="bi bi-pencil-square"></i><span>Registrar calificaciones</span></button>
-                <button class="quick-action" data-goto="reportes"><i class="bi bi-file-earmark-text"></i><span>Generar reporte</span></button>
-                <button class="quick-action" data-goto="reportes"><i class="bi bi-graph-up-arrow"></i><span>Ver rendimiento</span></button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ALUMNO -->
-        <div class="role-dashboard d-none" data-dashboard-role="Alumno">
-          <div class="dashboard-heading">
-            <div>
-              <span class="dashboard-eyebrow">PORTAL DEL ESTUDIANTE</span>
-              <h2 class="view-title">¡Bienvenido, <span id="alumnoWelcomeName">Estudiante</span>!</h2>
-              <p class="view-sub">Consulta tus calificaciones, asistencia y progreso académico.</p>
-            </div>
-            <div class="dashboard-role-badge student"><i class="bi bi-person-badge"></i> Alumno</div>
-          </div>
-
-          <div class="dashboard-grid professional-grid">
-            <button class="dash-card accent-purple" data-goto="misnotas">
-              <span class="dash-icon"><i class="bi bi-book-fill"></i></span>
-              <span class="dash-label">Mis cursos</span>
-              <span class="dash-count" id="studentCourseCount">0</span>
-            </button>
-            <button class="dash-card accent-blue" data-goto="misnotas">
-              <span class="dash-icon"><i class="bi bi-graph-up"></i></span>
-              <span class="dash-label">Promedio general</span>
-              <span class="dash-count" id="studentAverage">—</span>
-            </button>
-            <button class="dash-card accent-green" data-goto="misnotas">
-              <span class="dash-icon"><i class="bi bi-calendar-check"></i></span>
-              <span class="dash-label">Asistencia</span>
-              <span class="dash-count" id="studentAttendance">—</span>
-            </button>
-            <button class="dash-card accent-orange" data-goto="misnotas">
-              <span class="dash-icon"><i class="bi bi-award-fill"></i></span>
-              <span class="dash-label">Última calificación</span>
-              <span class="dash-count" id="studentLastGrade">—</span>
-            </button>
-          </div>
-
-          <div class="student-dashboard-layout">
-            <div class="panel-card">
-              <div class="panel-heading-row">
-                <div>
-                  <h3 class="panel-title mb-0">Mis calificaciones</h3>
-                  <small>Últimos registros académicos</small>
-                </div>
-                <button class="btn btn-sm btn-outline-brand" data-goto="misnotas">Ver todas</button>
-              </div>
-              <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                  <thead><tr><th>Curso</th><th>Bimestre</th><th>Nota</th><th>Fecha</th></tr></thead>
-                  <tbody id="studentGradesPreview"></tbody>
-                </table>
-              </div>
-            </div>
-
-            <div class="panel-card performance-card">
-              <h3 class="panel-title">Mi progreso</h3>
-              <div class="student-average-circle">
-                <strong id="studentAverageCircle">—</strong>
-                <span>Promedio</span>
-              </div>
-              <div class="performance-note"><i class="bi bi-lightbulb-fill"></i><span>Revisa periódicamente tus calificaciones y asistencia.</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- GESTIÓN DE ESTUDIANTES  -->
-      <section class="view" id="view-estudiantes">
-        <h2 class="view-title">Gestión de estudiantes</h2>
-        <p class="view-sub">Registrar, modificar, buscar y desactivar estudiantes.</p>
-
-        <div class="section-flex">
-          <div class="card panel-card form-card">
-            <h3 class="panel-title" id="tituloFormEstudiante">Registrar estudiante</h3>
-            <form id="formEstudiante" class="d-flex flex-column gap-3" novalidate>
-              <input type="hidden" id="estId">
-              <div>
-                <label class="form-label" for="estNombres">Nombres</label>
-                <input type="text" class="form-control" id="estNombres" placeholder="Ana María" required>
-              </div>
-              <div>
-                <label class="form-label" for="estApellidos">Apellidos</label>
-                <input type="text" class="form-control" id="estApellidos" placeholder="Quispe Torres" required>
-              </div>
-              <div>
-                <label class="form-label" for="estDni">DNI</label>
-                <input type="text" class="form-control" id="estDni" placeholder="12345678" required>
-              </div>
-              <div class="row g-2">
-                <div class="col-7">
-                  <label class="form-label" for="estGrado">Grado</label>
-                  <select class="form-select" id="estGrado" required>
-                    <option value="" disabled selected>Elegir</option>
-                    <option>1ro Secundaria</option>
-                    <option>2do Secundaria</option>
-                    <option>3ro Secundaria</option>
-                    <option>4to Secundaria</option>
-                    <option>5to Secundaria</option>
-                  </select>
-                </div>
-                <div class="col-5">
-                  <label class="form-label" for="estSeccion">Sección</label>
-                  <select class="form-select" id="estSeccion" required>
-                    <option value="" disabled selected>—</option>
-                    <option>A</option><option>B</option><option>C</option>
-                  </select>
-                </div>
-              </div>
-              <div class="d-flex gap-2 mt-2">
-                <button type="submit" class="btn btn-brand flex-grow-1" id="btnGuardarEstudiante">Guardar estudiante</button>
-                <button type="button" class="btn btn-outline-secondary d-none" id="btnCancelarEdicionEst">Cancelar</button>
-              </div>
-            </form>
-          </div>
-
-          <div class="card panel-card table-card">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-              <h3 class="panel-title mb-0">Lista de estudiantes</h3>
-              <div class="d-flex gap-2 flex-wrap">
-                <select class="form-select filter-select" id="filtroEstadoEstudiante">
-                  <option value="">Todos los estados</option>
-                  <option value="activo">Activos</option>
-                  <option value="inactivo">Inactivos</option>
-                </select>
-                <input type="search" id="buscarEstudiante" class="form-control search-input" placeholder="Buscar por nombre o DNI…">
-              </div>
-            </div>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead>
-                  <tr>
-                    <th>Estudiante</th><th>DNI</th><th>Grado</th><th>Sección</th><th>Estado</th><th class="text-end">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody id="tbodyEstudiantes"></tbody>
-              </table>
-            </div>
-            <p class="empty-state d-none" id="emptyEstudiantes">No hay estudiantes con ese criterio.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- GESTIÓN ACADÉMICA -->
-      <section class="view" id="view-academica">
-        <h2 class="view-title">Gestión académica</h2>
-        <p class="view-sub">Cursos, docentes y asignación de estudiantes a cursos.</p>
-
-        <nav class="subtabs mb-4">
-          <button class="subtab-btn active" data-subtab="cursos">Cursos</button>
-          <button class="subtab-btn" data-subtab="docentes">Docentes</button>
-          <button class="subtab-btn" data-subtab="asignacion">Asignación de estudiantes</button>
-        </nav>
-
-        <!-- CURSOS -->
-        <div class="subpanel active" id="sub-cursos">
-          <div class="section-flex">
-            <div class="card panel-card form-card">
-              <h3 class="panel-title">Nuevo curso</h3>
-              <form id="formCurso" class="d-flex flex-column gap-3" novalidate>
-                <div>
-                  <label class="form-label" for="curNombre">Nombre del curso</label>
-                  <input type="text" class="form-control" id="curNombre" placeholder="Matemática" required>
+                    <label class="form-label" for="loginUsuario">Usuario</label>
+                    <input type="text" class="form-control" id="loginUsuario" placeholder="Usuario" autocomplete="username" required />
                 </div>
                 <div>
-                  <label class="form-label" for="curDocente">Docente asignado</label>
-                  <select class="form-select" id="curDocente" required>
-                    <option value="" disabled selected>Elegir docente</option>
-                  </select>
+                    <label class="form-label" for="loginPassword">Contraseña</label>
+                    <input type="password" class="form-control" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required />
                 </div>
-                <div>
-                  <label class="form-label" for="curCreditos">Créditos</label>
-                  <input type="number" class="form-control" id="curCreditos" min="1" max="10" value="3" required>
-                </div>
-                <button type="submit" class="btn btn-brand mt-2">Guardar curso</button>
-              </form>
-            </div>
-            <div class="card panel-card table-card">
-              <h3 class="panel-title">Lista de cursos</h3>
-              <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                  <thead><tr><th>Curso</th><th>Docente</th><th>Créditos</th><th class="text-end">Acciones</th></tr></thead>
-                  <tbody id="tbodyCursos"></tbody>
-                </table>
-              </div>
-              <p class="empty-state d-none" id="emptyCursos">Aún no hay cursos registrados.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- DOCENTES -->
-        <div class="subpanel" id="sub-docentes">
-          <div class="section-flex">
-            <div class="card panel-card form-card">
-              <h3 class="panel-title" id="tituloFormDocente">Registrar docente</h3>
-              <form id="formDocente" class="d-flex flex-column gap-3" novalidate>
-                <input type="hidden" id="docId">
-                <div>
-                  <label class="form-label" for="docNombres">Nombres y apellidos</label>
-                  <input type="text" class="form-control" id="docNombres" placeholder="Carlos Ruiz" required>
-                </div>
-                <div>
-                  <label class="form-label" for="docEspecialidad">Especialidad</label>
-                  <input type="text" class="form-control" id="docEspecialidad" placeholder="Matemática" required>
-                </div>
-                <div>
-                  <label class="form-label" for="docEmail">Correo</label>
-                  <input type="email" class="form-control" id="docEmail" placeholder="carlos.ruiz@blenkirahora.edu" required>
-                </div>
-                <div class="d-flex gap-2 mt-2">
-                  <button type="submit" class="btn btn-brand flex-grow-1" id="btnGuardarDocente">Guardar docente</button>
-                  <button type="button" class="btn btn-outline-secondary d-none" id="btnCancelarEdicionDoc">Cancelar</button>
-                </div>
-              </form>
-            </div>
-            <div class="card panel-card table-card">
-              <h3 class="panel-title">Lista de docentes</h3>
-              <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                  <thead><tr><th>Docente</th><th>Especialidad</th><th>Correo</th><th>Estado</th><th class="text-end">Acciones</th></tr></thead>
-                  <tbody id="tbodyDocentes"></tbody>
-                </table>
-              </div>
-              <p class="empty-state d-none" id="emptyDocentes">Aún no hay docentes registrados.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- ASIGNACIÓN -->
-        <div class="subpanel" id="sub-asignacion">
-          <div class="card panel-card">
-            <h3 class="panel-title">Matricular estudiantes en un curso</h3>
-            <div class="row g-3 mb-3">
-              <div class="col-md-6">
-                <label class="form-label" for="asigCurso">Curso</label>
-                <select class="form-select" id="asigCurso">
-                  <option value="" disabled selected>Elegir curso</option>
-                </select>
-              </div>
-            </div>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead><tr><th>Estudiante</th><th>Grado / Sección</th><th class="text-end">Matriculado</th></tr></thead>
-                <tbody id="tbodyAsignacion"></tbody>
-              </table>
-            </div>
-            <p class="empty-state d-none" id="emptyAsignacion">Elige un curso para ver a los estudiantes.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- REGISTRO DE CALIFICACIONES -->
-      <section class="view" id="view-calificaciones">
-        <h2 class="view-title">Registro de calificaciones</h2>
-        <p class="view-sub">Selecciona curso y estudiante, registra la nota y consulta el promedio.</p>
-
-        <div class="section-flex">
-          <div class="card panel-card form-card">
-            <h3 class="panel-title">Registrar nota</h3>
-            <form id="formNota" class="d-flex flex-column gap-3" novalidate>
-              <div>
-                <label class="form-label" for="notaCurso">Curso</label>
-                <select class="form-select" id="notaCurso" required>
-                  <option value="" disabled selected>Elegir curso</option>
-                </select>
-              </div>
-              <div>
-                <label class="form-label" for="notaEstudiante">Estudiante</label>
-                <select class="form-select" id="notaEstudiante" required>
-                  <option value="" disabled selected>Elegir estudiante</option>
-                </select>
-              </div>
-              <div class="row g-2">
-                <div class="col-6">
-                  <label class="form-label" for="notaBimestre">Bimestre</label>
-                  <select class="form-select" id="notaBimestre" required>
-                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
-                  </select>
-                </div>
-                <div class="col-6">
-                  <label class="form-label" for="notaCalificacion">Calificación (0–20)</label>
-                  <input type="number" class="form-control" id="notaCalificacion" min="0" max="20" step="0.5" required>
-                </div>
-              </div>
-              <button type="submit" class="btn btn-brand mt-2">Registrar nota</button>
+                <div id="loginError" class="login-error d-none">Usuario o contraseña incorrectos.</div>
+                <button type="submit" class="btn btn-brand mt-1">Ingresar</button>
             </form>
 
-            <div class="promedio-box mt-4" id="promedioBox" style="display:none;">
-              <span class="promedio-label">Promedio del estudiante</span>
-              <span class="promedio-valor" id="promedioValor">0.0</span>
-            </div>
-          </div>
-
-          <div class="card panel-card table-card">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-              <h3 class="panel-title mb-0">Notas registradas</h3>
-              <select class="form-select filter-select" id="filtroCursoNotas">
-                <option value="">Todos los cursos</option>
-              </select>
-            </div>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead><tr><th>Estudiante</th><th>Curso</th><th>Bimestre</th><th>Calificación</th><th>Fecha</th><th class="text-end">Acciones</th></tr></thead>
-                <tbody id="tbodyNotas"></tbody>
-              </table>
-            </div>
-            <p class="empty-state d-none" id="emptyNotas">Aún no hay notas registradas.</p>
-          </div>
+            <p class="login-hint mt-4">
+                Administrador: <code>admin / admin123</code><br />
+                Docente: <code>docente / docente123</code><br />
+                Alumno: <code>alumno / alumno123</code>
+            </p>
         </div>
-      </section>
+    </section>
 
-      <!-- PANTALLA 6 · CONTROL DE ASISTENCIA -->
-      <section class="view" id="view-asistencia">
-        <h2 class="view-title">Control de asistencia</h2>
-        <p class="view-sub">Registra asistencia, inasistencia o tardanza, y consulta el historial.</p>
+    <!-- ============================================================
+    APP SHELL
+    ============================================================ -->
+    <div id="appShell" class="app-wrap d-none">
 
-        <div class="section-flex">
-          <div class="card panel-card form-card">
-            <h3 class="panel-title">Registrar asistencia</h3>
-            <form id="formAsistencia" class="d-flex flex-column gap-3" novalidate>
-              <div>
-                <label class="form-label" for="asisCurso">Curso</label>
-                <select class="form-select" id="asisCurso" required>
-                  <option value="" disabled selected>Elegir curso</option>
-                </select>
-              </div>
-              <div>
-                <label class="form-label" for="asisEstudiante">Estudiante</label>
-                <select class="form-select" id="asisEstudiante" required>
-                  <option value="" disabled selected>Elegir estudiante</option>
-                </select>
-              </div>
-              <div>
-                <label class="form-label" for="asisFecha">Fecha</label>
-                <input type="date" class="form-control" id="asisFecha" required>
-              </div>
-              <div>
-                <label class="form-label" for="asisEstado">Estado</label>
-                <select class="form-select" id="asisEstado" required>
-                  <option value="Presente">Presente</option>
-                  <option value="Tardanza">Tardanza</option>
-                  <option value="Inasistencia">Inasistencia</option>
-                </select>
-              </div>
-              <button type="submit" class="btn btn-brand mt-2">Registrar</button>
-            </form>
-          </div>
-
-          <div class="card panel-card table-card">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-              <h3 class="panel-title mb-0">Historial de asistencia</h3>
-              <select class="form-select filter-select" id="filtroEstudianteAsistencia">
-                <option value="">Todos los estudiantes</option>
-              </select>
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="d-flex align-items-center justify-content-between flex-wrap py-2 px-3">
+                <div class="d-flex align-items-center gap-3 brand">
+                    <button id="btnMenu" class="btn-icon d-lg-none" aria-label="Abrir menú">☰</button>
+                    <div class="brand-mark brand-mark-sm">
+                        <img src="img/logo.png" alt="Logo Colegios Blenkir" />
+                    </div>
+                    <div>
+                        <h1 class="brand-name mb-0">Colegios Blenkir</h1>
+                        <span class="brand-sub">Sistema de Seguimiento Académico</span>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="user-chip">
+                        <span id="userNombre">—</span>
+                        <span id="userRol" class="badge-rol">—</span>
+                    </span>
+                    <button id="btnLogout" class="btn btn-outline-light btn-sm">Cerrar sesión</button>
+                </div>
             </div>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead><tr><th>Estudiante</th><th>Curso</th><th>Fecha</th><th>Estado</th><th class="text-end">Acciones</th></tr></thead>
-                <tbody id="tbodyAsistencia"></tbody>
-              </table>
-            </div>
-            <p class="empty-state d-none" id="emptyAsistencia">Aún no hay registros de asistencia.</p>
-          </div>
+        </header>
+
+        <!-- APP BODY -->
+        <div class="app-body">
+
+            <!-- SIDEBAR -->
+            <aside class="sidebar" id="sidebar">
+                <nav class="d-flex flex-column gap-1">
+                    <button class="side-link active" data-view="dashboard" data-roles="Administrador,Docente,Alumno">
+                        <i class="bi bi-house-fill"></i> Panel principal
+                    </button>
+                    <button class="side-link" data-view="estudiantes" data-roles="Administrador">
+                        <i class="bi bi-people-fill"></i> Estudiantes
+                    </button>
+                    <button class="side-link" data-view="academica" data-roles="Administrador">
+                        <i class="bi bi-mortarboard-fill"></i> Gestión académica
+                    </button>
+                    <button class="side-link" data-view="calificaciones" data-roles="Docente">
+                        <i class="bi bi-pencil-square"></i> Calificaciones
+                    </button>
+                    <button class="side-link" data-view="asistencia" data-roles="Docente">
+                        <i class="bi bi-calendar-check"></i> Asistencia
+                    </button>
+                    <button class="side-link" data-view="reportes" data-roles="Administrador,Docente">
+                        <i class="bi bi-bar-chart-fill"></i> Reportes
+                    </button>
+                    <button class="side-link" data-view="misnotas" data-roles="Alumno">
+                        <i class="bi bi-book-fill"></i> Mis notas
+                    </button>
+                </nav>
+            </aside>
+
+            <div class="sidebar-backdrop d-none" id="sidebarBackdrop"></div>
+
+            <!-- MAIN CONTENT -->
+            <main class="main-content">
+
+                <!-- ============================================================
+                VIEW · DASHBOARD (Panel principal)
+                ============================================================ -->
+                <section class="view active" id="view-dashboard">
+
+                    <!-- --- DASHBOARD ADMINISTRADOR --- -->
+                    <div class="role-dashboard" data-dashboard-role="Administrador">
+                        <div class="dashboard-heading">
+                            <div>
+                                <span class="dashboard-eyebrow">SISTEMA DE SEGUIMIENTO ACADÉMICO</span>
+                                <h2 class="view-title">¡Bienvenido, Administrador!</h2>
+                                <p class="view-sub">Resumen general de la gestión académica del Colegio Blenkir.</p>
+                            </div>
+                            <div class="dashboard-date"><i class="bi bi-calendar3"></i> Año escolar 2026</div>
+                        </div>
+
+                        <!-- Tarjetas de estadísticas -->
+                        <div class="dashboard-grid professional-grid">
+                            <button class="dash-card accent-blue" data-goto="estudiantes" data-roles="Administrador">
+                                <span class="dash-icon"><i class="bi bi-people-fill"></i></span>
+                                <span class="dash-label">Estudiantes activos</span>
+                                <span class="dash-count" id="countEstudiantes">0</span>
+                            </button>
+                            <button class="dash-card accent-green" data-goto="academica" data-sub="docentes" data-roles="Administrador">
+                                <span class="dash-icon"><i class="bi bi-person-workspace"></i></span>
+                                <span class="dash-label">Docentes</span>
+                                <span class="dash-count" id="countDocentes">0</span>
+                            </button>
+                            <button class="dash-card accent-purple" data-goto="academica" data-sub="cursos" data-roles="Administrador">
+                                <span class="dash-icon"><i class="bi bi-book-half"></i></span>
+                                <span class="dash-label">Cursos activos</span>
+                                <span class="dash-count" id="countCursos">0</span>
+                            </button>
+                            <button class="dash-card accent-orange" data-goto="reportes">
+                                <span class="dash-icon"><i class="bi bi-bar-chart-fill"></i></span>
+                                <span class="dash-label">Calificaciones</span>
+                                <span class="dash-count" id="countNotas">0</span>
+                            </button>
+                        </div>
+
+                        <!-- Columnas: Resumen académico + Acciones rápidas -->
+                        <div class="dashboard-columns">
+                            <div class="panel-card">
+                                <div class="panel-heading-row">
+                                    <div>
+                                        <h3 class="panel-title mb-0">Resumen académico</h3>
+                                        <small>Estado actual del sistema</small>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-brand" data-goto="reportes">Ver reportes</button>
+                                </div>
+                                <div class="mini-stats">
+                                    <div><span>Asistencias</span><strong id="countAsistencias">0</strong></div>
+                                    <div><span>Estudiantes</span><strong id="adminStudents2">0</strong></div>
+                                    <div><span>Docentes</span><strong id="adminTeachers2">0</strong></div>
+                                    <div><span>Cursos</span><strong id="adminCourses2">0</strong></div>
+                                </div>
+                            </div>
+
+                            <div class="panel-card quick-panel">
+                                <h3 class="panel-title">Acciones rápidas</h3>
+                                <div class="quick-actions">
+                                    <button class="quick-action" data-goto="estudiantes">
+                                        <i class="bi bi-person-plus"></i><span>Registrar estudiante</span>
+                                    </button>
+                                    <button class="quick-action" data-goto="academica" data-sub="docentes">
+                                        <i class="bi bi-person-plus-fill"></i><span>Gestionar docentes</span>
+                                    </button>
+                                    <button class="quick-action" data-goto="academica" data-sub="cursos">
+                                        <i class="bi bi-journal-plus"></i><span>Gestionar cursos</span>
+                                    </button>
+                                    <button class="quick-action" data-goto="reportes">
+                                        <i class="bi bi-file-earmark-bar-graph"></i><span>Generar reporte</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- --- DASHBOARD DOCENTE (rediseñado según imagen) --- -->
+                    <div class="role-dashboard d-none" data-dashboard-role="Docente">
+                        <div class="dashboard-heading">
+                            <div>
+                                <span class="dashboard-eyebrow">MÓDULO DOCENTE</span>
+                                <h2 class="view-title">¡Bienvenido, <span id="docenteWelcomeName">Docente</span>!</h2>
+                                <p class="view-sub">Gestiona tus cursos, registra asistencia y calificaciones.</p>
+                            </div>
+                            <div class="dashboard-role-badge"><i class="bi bi-mortarboard-fill"></i> Docente</div>
+                        </div>
+
+                        <!-- Tarjetas de resumen -->
+                        <div class="dashboard-grid professional-grid">
+                            <div class="dash-card accent-purple">
+                                <span class="dash-icon"><i class="bi bi-journal-bookmark-fill"></i></span>
+                                <span class="dash-label">Mis cursos</span>
+                                <span class="dash-count" id="teacherCourseCount">0</span>
+                            </div>
+                            <div class="dash-card accent-blue">
+                                <span class="dash-icon"><i class="bi bi-star-fill"></i></span>
+                                <span class="dash-label">Calificaciones</span>
+                                <span class="dash-count" id="teacherGradeCount">0</span>
+                            </div>
+                            <div class="dash-card accent-green">
+                                <span class="dash-icon"><i class="bi bi-calendar-check-fill"></i></span>
+                                <span class="dash-label">Asistencia</span>
+                                <span class="dash-count" id="teacherAttendanceCount">0</span>
+                            </div>
+                            <div class="dash-card accent-orange">
+                                <span class="dash-icon"><i class="bi bi-file-earmark-bar-graph-fill"></i></span>
+                                <span class="dash-label">Reportes</span>
+                                <span class="dash-count">→</span>
+                            </div>
+                        </div>
+
+                        <!-- Mis cursos + Actividad reciente (estilo imagen) -->
+                        <div class="dashboard-columns">
+                            <!-- Mis cursos -->
+                            <div class="panel-card">
+                                <div class="panel-heading-row">
+                                    <h3 class="panel-title mb-0">Mis cursos</h3>
+                                    <button class="btn btn-sm btn-outline-brand" data-goto="academica" data-sub="cursos">Gestionar</button>
+                                </div>
+                                <div id="teacherCoursesPreview" class="course-preview"></div>
+                            </div>
+
+                            <!-- Actividad reciente -->
+                            <div class="panel-card">
+                                <div class="panel-heading-row">
+                                    <h3 class="panel-title mb-0">Actividad reciente</h3>
+                                    <button class="btn btn-sm btn-outline-brand" data-goto="reportes">Ver todos</button>
+                                </div>
+                                <div id="teacherRecentActivity" class="recent-activity-list">
+                                    <!-- Renderizado por JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Acciones rápidas + Próximas evaluaciones + Mensajes (estilo imagen) -->
+                        <div class="row g-3 mt-2">
+                            <!-- Acciones rápidas -->
+                            <div class="col-md-4">
+                                <div class="panel-card h-100">
+                                    <h3 class="panel-title">Acciones rápidas</h3>
+                                    <div class="quick-actions">
+                                        <button class="quick-action" data-goto="asistencia">
+                                            <i class="bi bi-calendar-check"></i><span>Registrar asistencia</span>
+                                        </button>
+                                        <button class="quick-action" data-goto="calificaciones">
+                                            <i class="bi bi-pencil-square"></i><span>Registrar calificaciones</span>
+                                        </button>
+                                        <button class="quick-action" data-goto="reportes">
+                                            <i class="bi bi-file-earmark-text"></i><span>Generar reporte</span>
+                                        </button>
+                                        <button class="quick-action" data-goto="reportes">
+                                            <i class="bi bi-graph-up-arrow"></i><span>Ver rendimiento</span>
+                                        </button>
+                                    </div>
+                                    <div class="d-flex gap-2 mt-3">
+                                        <button class="btn btn-brand btn-sm flex-grow-1">Enviar comunicación</button>
+                                        <button class="btn btn-outline-brand btn-sm flex-grow-1">Ver todos</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Próximas evaluaciones -->
+                            <div class="col-md-4">
+                                <div class="panel-card h-100">
+                                    <h3 class="panel-title">Próximas evaluaciones</h3>
+                                    <div id="teacherUpcomingExams" class="upcoming-list">
+                                        <!-- Renderizado por JS -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mensajes recientes -->
+                            <div class="col-md-4">
+                                <div class="panel-card h-100">
+                                    <h3 class="panel-title">Mensajes recientes</h3>
+                                    <div id="teacherRecentMessages" class="message-list">
+                                        <!-- Renderizado por JS -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- --- DASHBOARD ALUMNO (rediseñado según imagen) --- -->
+                    <div class="role-dashboard d-none" data-dashboard-role="Alumno">
+                        <div class="dashboard-heading">
+                            <div>
+                                <span class="dashboard-eyebrow">PORTAL DEL ESTUDIANTE</span>
+                                <h2 class="view-title">¡Bienvenido, <span id="alumnoWelcomeName">Estudiante</span>!</h2>
+                                <p class="view-sub">Consulta tus calificaciones, asistencia y progreso académico.</p>
+                            </div>
+                            <div class="dashboard-role-badge student"><i class="bi bi-person-badge"></i> Alumno</div>
+                        </div>
+
+                        <!-- Tarjetas de resumen -->
+                        <div class="dashboard-grid professional-grid">
+                            <div class="dash-card accent-purple">
+                                <span class="dash-icon"><i class="bi bi-book-fill"></i></span>
+                                <span class="dash-label">Cursos activos</span>
+                                <span class="dash-count" id="studentCourseCount">0</span>
+                            </div>
+                            <div class="dash-card accent-blue">
+                                <span class="dash-icon"><i class="bi bi-graph-up"></i></span>
+                                <span class="dash-label">Último bimestre</span>
+                                <span class="dash-count" id="studentLastBimestre">—</span>
+                            </div>
+                            <div class="dash-card accent-green">
+                                <span class="dash-icon"><i class="bi bi-calendar-check"></i></span>
+                                <span class="dash-label">Asistencia general</span>
+                                <span class="dash-count" id="studentAttendance">—</span>
+                            </div>
+                            <div class="dash-card accent-orange">
+                                <span class="dash-icon"><i class="bi bi-trophy-fill"></i></span>
+                                <span class="dash-label">Posición</span>
+                                <span class="dash-count" id="studentPosition">—</span>
+                            </div>
+                        </div>
+
+                        <!-- Mis cursos + Mi rendimiento -->
+                        <div class="dashboard-columns">
+                            <div class="panel-card">
+                                <div class="panel-heading-row">
+                                    <h3 class="panel-title mb-0">Mis cursos</h3>
+                                    <button class="btn btn-sm btn-outline-brand" data-goto="misnotas">Ver todas</button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Curso</th>
+                                                <th>Docente</th>
+                                                <th>Promedio</th>
+                                                <th>Última evaluación</th>
+                                                <th class="text-end">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="studentCourseList">
+                                            <!-- Renderizado por JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="panel-card performance-card">
+                                <h3 class="panel-title">Mi rendimiento</h3>
+                                <div class="student-average-circle">
+                                    <strong id="studentAverageCircle">—</strong>
+                                    <span>Promedio General</span>
+                                </div>
+                                <div class="student-stats-mini">
+                                    <div><span>Asistencia</span><strong id="studentAttendanceMini">—</strong></div>
+                                    <div><span>Posición</span><strong id="studentPositionMini">—</strong></div>
+                                </div>
+                                <div class="performance-note">
+                                    <i class="bi bi-lightbulb-fill"></i>
+                                    <span>Revisa periódicamente tus calificaciones y asistencia.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mi asistencia por curso + Mi perfil + Resumen académico + Próximas evaluaciones + Avisos -->
+                        <div class="row g-3 mt-2">
+                            <!-- Mi asistencia por curso -->
+                            <div class="col-md-4">
+                                <div class="panel-card h-100">
+                                    <h3 class="panel-title">Mi asistencia por curso</h3>
+                                    <div id="studentAttendanceByCourse" class="attendance-by-course">
+                                        <!-- Renderizado por JS -->
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-brand mt-2" data-goto="misnotas">Ver todas mis calificaciones</button>
+                                </div>
+                            </div>
+
+                            <!-- Mi perfil -->
+                            <div class="col-md-4">
+                                <div class="panel-card h-100">
+                                    <h3 class="panel-title">Mi perfil</h3>
+                                    <div id="studentProfile" class="student-profile">
+                                        <!-- Renderizado por JS -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Resumen académico -->
+                            <div class="col-md-4">
+                                <div class="panel-card h-100">
+                                    <h3 class="panel-title">Resumen académico</h3>
+                                    <div id="studentAcademicSummary" class="academic-summary">
+                                        <!-- Renderizado por JS -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Próximas evaluaciones -->
+                            <div class="col-md-6">
+                                <div class="panel-card h-100">
+                                    <h3 class="panel-title">Próximas evaluaciones</h3>
+                                    <div id="studentUpcomingExams" class="upcoming-list">
+                                        <!-- Renderizado por JS -->
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-brand mt-2" data-goto="misnotas">Ver todas mis evaluaciones</button>
+                                </div>
+                            </div>
+
+                            <!-- Avisos recientes -->
+                            <div class="col-md-6">
+                                <div class="panel-card h-100">
+                                    <h3 class="panel-title">Avisos recientes</h3>
+                                    <div id="studentRecentAnnouncements" class="announcement-list">
+                                        <!-- Renderizado por JS -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+
+                <!-- ============================================================
+                VIEW · GESTIÓN DE ESTUDIANTES
+                ============================================================ -->
+                <section class="view" id="view-estudiantes">
+                    <h2 class="view-title">Gestión de estudiantes</h2>
+                    <p class="view-sub">Registrar, modificar, buscar y desactivar estudiantes.</p>
+
+                    <div class="section-flex">
+                        <div class="card panel-card form-card">
+                            <h3 class="panel-title" id="tituloFormEstudiante">Registrar estudiante</h3>
+                            <form id="formEstudiante" class="d-flex flex-column gap-3" novalidate>
+                                <input type="hidden" id="estId" />
+                                <div>
+                                    <label class="form-label" for="estNombres">Nombres</label>
+                                    <input type="text" class="form-control" id="estNombres" placeholder="Ana María" required />
+                                </div>
+                                <div>
+                                    <label class="form-label" for="estApellidos">Apellidos</label>
+                                    <input type="text" class="form-control" id="estApellidos" placeholder="Quispe Torres" required />
+                                </div>
+                                <div>
+                                    <label class="form-label" for="estDni">DNI</label>
+                                    <input type="text" class="form-control" id="estDni" placeholder="12345678" required />
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-7">
+                                        <label class="form-label" for="estGrado">Grado</label>
+                                        <select class="form-select" id="estGrado" required>
+                                            <option value="" disabled selected>Elegir</option>
+                                            <option>1ro Secundaria</option>
+                                            <option>2do Secundaria</option>
+                                            <option>3ro Secundaria</option>
+                                            <option>4to Secundaria</option>
+                                            <option>5to Secundaria</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-5">
+                                        <label class="form-label" for="estSeccion">Sección</label>
+                                        <select class="form-select" id="estSeccion" required>
+                                            <option value="" disabled selected>—</option>
+                                            <option>A</option><option>B</option><option>C</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 mt-2">
+                                    <button type="submit" class="btn btn-brand flex-grow-1" id="btnGuardarEstudiante">Guardar estudiante</button>
+                                    <button type="button" class="btn btn-outline-secondary d-none" id="btnCancelarEdicionEst">Cancelar</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="card panel-card table-card">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                                <h3 class="panel-title mb-0">Lista de estudiantes</h3>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <select class="form-select filter-select" id="filtroEstadoEstudiante">
+                                        <option value="">Todos los estados</option>
+                                        <option value="activo">Activos</option>
+                                        <option value="inactivo">Inactivos</option>
+                                    </select>
+                                    <input type="search" id="buscarEstudiante" class="form-control search-input" placeholder="Buscar por nombre o DNI…" />
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Estudiante</th><th>DNI</th><th>Grado</th><th>Sección</th><th>Estado</th><th class="text-end">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyEstudiantes"></tbody>
+                                </table>
+                            </div>
+                            <p class="empty-state d-none" id="emptyEstudiantes">No hay estudiantes con ese criterio.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                VIEW · GESTIÓN ACADÉMICA
+                ============================================================ -->
+                <section class="view" id="view-academica">
+                    <h2 class="view-title">Gestión académica</h2>
+                    <p class="view-sub">Cursos, docentes y asignación de estudiantes a cursos.</p>
+
+                    <nav class="subtabs mb-4">
+                        <button class="subtab-btn active" data-subtab="cursos">Cursos</button>
+                        <button class="subtab-btn" data-subtab="docentes">Docentes</button>
+                        <button class="subtab-btn" data-subtab="asignacion">Asignación de estudiantes</button>
+                    </nav>
+
+                    <!-- CURSOS -->
+                    <div class="subpanel active" id="sub-cursos">
+                        <div class="section-flex">
+                            <div class="card panel-card form-card">
+                                <h3 class="panel-title">Nuevo curso</h3>
+                                <form id="formCurso" class="d-flex flex-column gap-3" novalidate>
+                                    <div>
+                                        <label class="form-label" for="curNombre">Nombre del curso</label>
+                                        <input type="text" class="form-control" id="curNombre" placeholder="Matemática" required />
+                                    </div>
+                                    <div>
+                                        <label class="form-label" for="curDocente">Docente asignado</label>
+                                        <select class="form-select" id="curDocente" required>
+                                            <option value="" disabled selected>Elegir docente</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="form-label" for="curCreditos">Créditos</label>
+                                        <input type="number" class="form-control" id="curCreditos" min="1" max="10" value="3" required />
+                                    </div>
+                                    <button type="submit" class="btn btn-brand mt-2">Guardar curso</button>
+                                </form>
+                            </div>
+                            <div class="card panel-card table-card">
+                                <h3 class="panel-title">Lista de cursos</h3>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead><tr><th>Curso</th><th>Docente</th><th>Créditos</th><th class="text-end">Acciones</th></tr></thead>
+                                        <tbody id="tbodyCursos"></tbody>
+                                    </table>
+                                </div>
+                                <p class="empty-state d-none" id="emptyCursos">Aún no hay cursos registrados.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DOCENTES -->
+                    <div class="subpanel" id="sub-docentes">
+                        <div class="section-flex">
+                            <div class="card panel-card form-card">
+                                <h3 class="panel-title" id="tituloFormDocente">Registrar docente</h3>
+                                <form id="formDocente" class="d-flex flex-column gap-3" novalidate>
+                                    <input type="hidden" id="docId" />
+                                    <div>
+                                        <label class="form-label" for="docNombres">Nombres y apellidos</label>
+                                        <input type="text" class="form-control" id="docNombres" placeholder="Carlos Ruiz" required />
+                                    </div>
+                                    <div>
+                                        <label class="form-label" for="docEspecialidad">Especialidad</label>
+                                        <input type="text" class="form-control" id="docEspecialidad" placeholder="Matemática" required />
+                                    </div>
+                                    <div>
+                                        <label class="form-label" for="docEmail">Correo</label>
+                                        <input type="email" class="form-control" id="docEmail" placeholder="carlos.ruiz@blenkirahora.edu" required />
+                                    </div>
+                                    <div class="d-flex gap-2 mt-2">
+                                        <button type="submit" class="btn btn-brand flex-grow-1" id="btnGuardarDocente">Guardar docente</button>
+                                        <button type="button" class="btn btn-outline-secondary d-none" id="btnCancelarEdicionDoc">Cancelar</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="card panel-card table-card">
+                                <h3 class="panel-title">Lista de docentes</h3>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead><tr><th>Docente</th><th>Especialidad</th><th>Correo</th><th>Estado</th><th class="text-end">Acciones</th></tr></thead>
+                                        <tbody id="tbodyDocentes"></tbody>
+                                    </table>
+                                </div>
+                                <p class="empty-state d-none" id="emptyDocentes">Aún no hay docentes registrados.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ASIGNACIÓN -->
+                    <div class="subpanel" id="sub-asignacion">
+                        <div class="card panel-card">
+                            <h3 class="panel-title">Matricular estudiantes en un curso</h3>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="asigCurso">Curso</label>
+                                    <select class="form-select" id="asigCurso">
+                                        <option value="" disabled selected>Elegir curso</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead><tr><th>Estudiante</th><th>Grado / Sección</th><th class="text-end">Matriculado</th></tr></thead>
+                                    <tbody id="tbodyAsignacion"></tbody>
+                                </table>
+                            </div>
+                            <p class="empty-state d-none" id="emptyAsignacion">Elige un curso para ver a los estudiantes.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                VIEW · CALIFICACIONES
+                ============================================================ -->
+                <section class="view" id="view-calificaciones">
+                    <h2 class="view-title">Registro de calificaciones</h2>
+                    <p class="view-sub">Selecciona curso y estudiante, registra la nota y consulta el promedio.</p>
+
+                    <div class="section-flex">
+                        <div class="card panel-card form-card">
+                            <h3 class="panel-title">Registrar nota</h3>
+                            <form id="formNota" class="d-flex flex-column gap-3" novalidate>
+                                <div>
+                                    <label class="form-label" for="notaCurso">Curso</label>
+                                    <select class="form-select" id="notaCurso" required>
+                                        <option value="" disabled selected>Elegir curso</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label" for="notaEstudiante">Estudiante</label>
+                                    <select class="form-select" id="notaEstudiante" required>
+                                        <option value="" disabled selected>Elegir estudiante</option>
+                                    </select>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="form-label" for="notaBimestre">Bimestre</label>
+                                        <select class="form-select" id="notaBimestre" required>
+                                            <option value="1">1</option><option value="2">2</option>
+                                            <option value="3">3</option><option value="4">4</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label" for="notaCalificacion">Calificación (0–20)</label>
+                                        <input type="number" class="form-control" id="notaCalificacion" min="0" max="20" step="0.5" required />
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-brand mt-2">Registrar nota</button>
+                            </form>
+
+                            <div class="promedio-box mt-4" id="promedioBox" style="display:none;">
+                                <span class="promedio-label">Promedio del estudiante</span>
+                                <span class="promedio-valor" id="promedioValor">0.0</span>
+                            </div>
+                        </div>
+
+                        <div class="card panel-card table-card">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                                <h3 class="panel-title mb-0">Notas registradas</h3>
+                                <select class="form-select filter-select" id="filtroCursoNotas">
+                                    <option value="">Todos los cursos</option>
+                                </select>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead><tr><th>Estudiante</th><th>Curso</th><th>Bimestre</th><th>Calificación</th><th>Fecha</th><th class="text-end">Acciones</th></tr></thead>
+                                    <tbody id="tbodyNotas"></tbody>
+                                </table>
+                            </div>
+                            <p class="empty-state d-none" id="emptyNotas">Aún no hay notas registradas.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                VIEW · ASISTENCIA
+                ============================================================ -->
+                <section class="view" id="view-asistencia">
+                    <h2 class="view-title">Control de asistencia</h2>
+                    <p class="view-sub">Registra asistencia, inasistencia o tardanza, y consulta el historial.</p>
+
+                    <div class="section-flex">
+                        <div class="card panel-card form-card">
+                            <h3 class="panel-title">Registrar asistencia</h3>
+                            <form id="formAsistencia" class="d-flex flex-column gap-3" novalidate>
+                                <div>
+                                    <label class="form-label" for="asisCurso">Curso</label>
+                                    <select class="form-select" id="asisCurso" required>
+                                        <option value="" disabled selected>Elegir curso</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label" for="asisEstudiante">Estudiante</label>
+                                    <select class="form-select" id="asisEstudiante" required>
+                                        <option value="" disabled selected>Elegir estudiante</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label" for="asisFecha">Fecha</label>
+                                    <input type="date" class="form-control" id="asisFecha" required />
+                                </div>
+                                <div>
+                                    <label class="form-label" for="asisEstado">Estado</label>
+                                    <select class="form-select" id="asisEstado" required>
+                                        <option value="Presente">Presente</option>
+                                        <option value="Tardanza">Tardanza</option>
+                                        <option value="Inasistencia">Inasistencia</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-brand mt-2">Registrar</button>
+                            </form>
+                        </div>
+
+                        <div class="card panel-card table-card">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                                <h3 class="panel-title mb-0">Historial de asistencia</h3>
+                                <select class="form-select filter-select" id="filtroEstudianteAsistencia">
+                                    <option value="">Todos los estudiantes</option>
+                                </select>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead><tr><th>Estudiante</th><th>Curso</th><th>Fecha</th><th>Estado</th><th class="text-end">Acciones</th></tr></thead>
+                                    <tbody id="tbodyAsistencia"></tbody>
+                                </table>
+                            </div>
+                            <p class="empty-state d-none" id="emptyAsistencia">Aún no hay registros de asistencia.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                VIEW · REPORTES
+                ============================================================ -->
+                <section class="view" id="view-reportes">
+                    <h2 class="view-title">Reportes académicos</h2>
+                    <p class="view-sub">Notas, asistencia, rendimiento académico e historial general.</p>
+
+                    <nav class="subtabs mb-4">
+                        <button class="subtab-btn active" data-subtab-rep="notas">Reporte de notas</button>
+                        <button class="subtab-btn" data-subtab-rep="asistencia">Asistencia</button>
+                        <button class="subtab-btn" data-subtab-rep="rendimiento">Rendimiento académico</button>
+                        <button class="subtab-btn" data-subtab-rep="historial">Historial</button>
+                    </nav>
+
+                    <div class="subpanel-rep active" id="rep-notas">
+                        <div class="card panel-card">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                                <h3 class="panel-title mb-0">Reporte de notas</h3>
+                                <select class="form-select filter-select" id="repFiltroCurso">
+                                    <option value="">Todos los cursos</option>
+                                </select>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead><tr><th>Estudiante</th><th>Curso</th><th>Bimestre</th><th>Calificación</th></tr></thead>
+                                    <tbody id="tbodyRepNotas"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subpanel-rep" id="rep-asistencia">
+                        <div class="card panel-card">
+                            <h3 class="panel-title">Resumen de asistencia por estudiante</h3>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead><tr><th>Estudiante</th><th>Presente</th><th>Tardanza</th><th>Inasistencia</th><th>% Asistencia</th></tr></thead>
+                                    <tbody id="tbodyRepAsistencia"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subpanel-rep" id="rep-rendimiento">
+                        <div class="card panel-card">
+                            <h3 class="panel-title">Ranking de rendimiento académico</h3>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead><tr><th>#</th><th>Estudiante</th><th>Promedio general</th><th>Notas registradas</th></tr></thead>
+                                    <tbody id="tbodyRepRendimiento"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subpanel-rep" id="rep-historial">
+                        <div class="card panel-card">
+                            <h3 class="panel-title">Historial general (notas y asistencia)</h3>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead><tr><th>Fecha</th><th>Tipo</th><th>Estudiante</th><th>Curso</th><th>Detalle</th></tr></thead>
+                                    <tbody id="tbodyRepHistorial"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                VIEW · MIS NOTAS (Alumno)
+                ============================================================ -->
+                <section class="view" id="view-misnotas">
+                    <h2 class="view-title">Mis notas</h2>
+                    <p class="view-sub">Consulta de tus calificaciones registradas por curso y bimestre.</p>
+
+                    <div class="alumno-header card panel-card mb-4">
+                        <div class="alumno-avatar">🎓</div>
+                        <div>
+                            <div class="alumno-nombre" id="alumnoNombre">—</div>
+                            <div class="alumno-meta" id="alumnoMeta">—</div>
+                        </div>
+                        <div class="promedio-box promedio-box-inline" id="promedioAlumnoBox">
+                            <span class="promedio-label">Promedio general</span>
+                            <span class="promedio-valor" id="promedioAlumnoValor">0.0</span>
+                        </div>
+                    </div>
+
+                    <div class="card panel-card table-card" style="max-width:100%;">
+                        <h3 class="panel-title mb-0">Detalle de calificaciones</h3>
+                        <div class="table-responsive mt-3">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead><tr><th>Curso</th><th>Bimestre</th><th>Calificación</th><th>Fecha</th></tr></thead>
+                                <tbody id="tbodyMisNotas"></tbody>
+                            </table>
+                        </div>
+                        <p class="empty-state d-none" id="emptyMisNotas">Aún no tienes calificaciones registradas.</p>
+                    </div>
+                </section>
+
+            </main>
         </div>
-      </section>
-
-      <!-- REPORTES ACADÉMICOS -->
-      <section class="view" id="view-reportes">
-        <h2 class="view-title">Reportes académicos</h2>
-        <p class="view-sub">Notas, asistencia, rendimiento académico e historial general.</p>
-
-        <nav class="subtabs mb-4">
-          <button class="subtab-btn active" data-subtab-rep="notas">Reporte de notas</button>
-          <button class="subtab-btn" data-subtab-rep="asistencia">Asistencia</button>
-          <button class="subtab-btn" data-subtab-rep="rendimiento">Rendimiento académico</button>
-          <button class="subtab-btn" data-subtab-rep="historial">Historial</button>
-        </nav>
-
-        <div class="subpanel-rep active" id="rep-notas">
-          <div class="card panel-card">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-              <h3 class="panel-title mb-0">Reporte de notas</h3>
-              <select class="form-select filter-select" id="repFiltroCurso">
-                <option value="">Todos los cursos</option>
-              </select>
-            </div>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead><tr><th>Estudiante</th><th>Curso</th><th>Bimestre</th><th>Calificación</th></tr></thead>
-                <tbody id="tbodyRepNotas"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div class="subpanel-rep" id="rep-asistencia">
-          <div class="card panel-card">
-            <h3 class="panel-title">Resumen de asistencia por estudiante</h3>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead><tr><th>Estudiante</th><th>Presente</th><th>Tardanza</th><th>Inasistencia</th><th>% Asistencia</th></tr></thead>
-                <tbody id="tbodyRepAsistencia"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div class="subpanel-rep" id="rep-rendimiento">
-          <div class="card panel-card">
-            <h3 class="panel-title">Ranking de rendimiento académico</h3>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead><tr><th>#</th><th>Estudiante</th><th>Promedio general</th><th>Notas registradas</th></tr></thead>
-                <tbody id="tbodyRepRendimiento"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div class="subpanel-rep" id="rep-historial">
-          <div class="card panel-card">
-            <h3 class="panel-title">Historial general (notas y asistencia)</h3>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead><tr><th>Fecha</th><th>Tipo</th><th>Estudiante</th><th>Curso</th><th>Detalle</th></tr></thead>
-                <tbody id="tbodyRepHistorial"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!--  NOTAS (ALUMNO) -->
-      <section class="view" id="view-misnotas">
-        <h2 class="view-title">Mis notas</h2>
-        <p class="view-sub">Consulta de tus calificaciones registradas por curso y bimestre.</p>
-
-        <div class="alumno-header card panel-card mb-4">
-          <div class="alumno-avatar">🎓</div>
-          <div>
-            <div class="alumno-nombre" id="alumnoNombre">—</div>
-            <div class="alumno-meta" id="alumnoMeta">—</div>
-          </div>
-          <div class="promedio-box promedio-box-inline" id="promedioAlumnoBox">
-            <span class="promedio-label">Promedio general</span>
-            <span class="promedio-valor" id="promedioAlumnoValor">0.0</span>
-          </div>
-        </div>
-
-        <div class="card panel-card table-card" style="max-width:100%;">
-          <h3 class="panel-title mb-0">Detalle de calificaciones</h3>
-          <div class="table-responsive mt-3">
-            <table class="table table-hover align-middle mb-0">
-              <thead><tr><th>Curso</th><th>Bimestre</th><th>Calificación</th><th>Fecha</th></tr></thead>
-              <tbody id="tbodyMisNotas"></tbody>
-            </table>
-          </div>
-          <p class="empty-state d-none" id="emptyMisNotas">Aún no tienes calificaciones registradas.</p>
-        </div>
-      </section>
-
-    </main>
-  </div>
-</div>
-
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-  <div id="appToast" class="toast align-items-center border-0" role="alert">
-    <div class="d-flex">
-      <div class="toast-body" id="appToastBody">Listo.</div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
     </div>
-  </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="app.js"></script>
+    <!-- TOAST -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="appToast" class="toast align-items-center border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body" id="appToastBody">Listo.</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
+    <script src="app.js">
+    </script>
 </body>
 </html>
