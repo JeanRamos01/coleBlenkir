@@ -1,0 +1,15 @@
+# Alternativa si no tienes PostgreSQL instalado:  docker compose up -d
+services:
+  db:
+    image: postgres:16
+    container_name: blenkir-db
+    environment:
+      POSTGRES_DB: blenkir
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - blenkir_pgdata:/var/lib/postgresql/data
+volumes:
+  blenkir_pgdata:
