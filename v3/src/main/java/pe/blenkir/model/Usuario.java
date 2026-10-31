@@ -10,7 +10,7 @@ public class Usuario {
     private Long id;
     @NotBlank @Size(max = 50) @Column(nullable = false, unique = true, length = 50) private String usuario;
     @Column(name = "password_hash", nullable = false, length = 100) private String passwordHash;
-    @NotBlank @Pattern(regexp = "Administrador|Docente|Alumno") @Column(nullable = false, length = 15) private String tipo;
+    @NotBlank @Pattern(regexp = "Administrador|Docente|Alumno|APODERADO") @Column(nullable = false, length = 15) private String tipo;
     @NotBlank @Size(max = 120) @Column(nullable = false, length = 120) private String nombre;
     @Column(name = "id_estudiante") private Long idEstudiante;
     @Column(name = "id_docente") private Long idDocente;
