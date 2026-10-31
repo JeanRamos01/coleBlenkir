@@ -30,11 +30,14 @@ public class DatosDemoService implements ApplicationRunner {
     private final NotaRepository notas;
     private final AsistenciaRepository asistencias;
     private final UsuarioRepository usuarios;
+    private final ApoderadoRepository apoderados;
+    private final ApoderadoEstudianteRepository vinculosApoderado;
     private final PasswordEncoder encoder;
 
     public DatosDemoService(DocenteRepository docentes, EstudianteRepository estudiantes, CursoRepository cursos,
                             AsignacionRepository asignaciones, NotaRepository notas, AsistenciaRepository asistencias,
-                            UsuarioRepository usuarios, PasswordEncoder encoder) {
+                            UsuarioRepository usuarios, ApoderadoRepository apoderados,
+                            ApoderadoEstudianteRepository vinculosApoderado, PasswordEncoder encoder) {
         this.docentes = docentes;
         this.estudiantes = estudiantes;
         this.cursos = cursos;
@@ -42,6 +45,8 @@ public class DatosDemoService implements ApplicationRunner {
         this.notas = notas;
         this.asistencias = asistencias;
         this.usuarios = usuarios;
+        this.apoderados = apoderados;
+        this.vinculosApoderado = vinculosApoderado;
         this.encoder = encoder;
     }
 
@@ -101,6 +106,33 @@ public class DatosDemoService implements ApplicationRunner {
                         e.getNombres() + " " + e.getApellidos(), e.getId(), null);
             }
             log.info("Datos de demostración ampliados: 5 docentes, 8 cursos y 12 estudiantes (incluye inactivos).");
+        }
+
+        // Cuenta de demostración del portal de apoderados (vinculada mediante la tabla puente).
+        Usuario cuentaApoderado = usuarios.findByUsuarioIgnoreCase("apoderado.demo").orElse(null);
+        if (cuentaApoderado == null) {
+            cuentaApoderado = crearUsuario("apoderado.demo", "Blenkir@2026", "APODERADO",
+                    "Apoderado de Ana Quispe", null, null);
+        } else if (!"APODERADO".equals(cuentaApoderado.getTipo())) {
+            // Reserva la cuenta demo con el rol correcto sin modificar su contraseña existente.
+            cuentaApoderado.setTipo("APODERADO");
+            cuentaApoderado.setIdEstudiante(null);
+            cuentaApoderado.setIdDocente(null);
+            cuentaApoderado = usuarios.save(cuentaApoderado);
+        }
+        Apoderado perfil = apoderados.findByUsuarioId(cuentaApoderado.getId()).orElse(null);
+        if (perfil == null) {
+            perfil = new Apoderado();
+            perfil.setUsuarioId(cuentaApoderado.getId());
+            perfil = apoderados.save(perfil);
+        }
+        if (vinculosApoderado.findByApoderadoIdOrderById(perfil.getId()).isEmpty()) {
+            Estudiante ana = estudiantes.findByDni("71234567").orElse(null);
+            if (ana != null) {
+                ApoderadoEstudiante v = new ApoderadoEstudiante(); v.setApoderadoId(perfil.getId()); v.setEstudianteId(ana.getId());
+                v.setParentesco("Madre / Padre"); v.setPuedeVerNotas(true); v.setPuedeVerAsistencia(true); v.setPuedeVerAlertas(true);
+                vinculosApoderado.save(v);
+            }
         }
 
         // Siempre debe existir al menos un administrador para poder entrar a la web.

@@ -179,3 +179,16 @@ blenkir/
         ├── schema.sql    ← el script de PostgreSQL
         └── static/       ← tu web (index.html, pagInicio.html, app.js, css, img)
 ```
+
+
+## Portal privado de apoderados
+
+El sistema incorpora el rol `APODERADO` con acceso mediante usuario y contraseña propios (BCrypt en `usuarios.password_hash`). Cada cuenta tiene un perfil uno a uno en `apoderados` (`usuario_id` único) y puede estar vinculada a uno o varios estudiantes mediante `apoderado_estudiante`. La tabla puente registra parentesco, estado del vínculo y permisos independientes para calificaciones, asistencia y alertas.
+
+El portal se consulta en `GET /api/apoderado/portal`. El servidor obtiene el usuario desde la sesión y no recibe un DNI ni un ID de estudiante indicado por el navegador. El resultado incluye solo los estudiantes vinculados activos y los datos autorizados por cada permiso. El rol `APODERADO` no puede consultar `/api/estado` ni los endpoints generales de estudiantes, notas, asistencia, cursos, docentes o matrículas.
+
+El esquema `src/main/resources/schema.sql` crea las tablas nuevas y amplía de forma idempotente la restricción de roles para instalaciones PostgreSQL existentes. En perfil `practica`, Hibernate actualiza las entidades automáticamente (`ddl-auto=update`).
+
+**Cuenta de prueba del portal:** `apoderado.demo` / `Blenkir@2026` (vinculada a Ana Quispe Torres, DNI 71234567). La cuenta demo se genera junto con los datos de demostración.
+
+Para dar de alta un apoderado desde el panel de administración, entra a **Usuarios**, selecciona el rol **Apoderado**, asigna uno o varios estudiantes, define el parentesco y marca los permisos que tendrá sobre sus reportes.

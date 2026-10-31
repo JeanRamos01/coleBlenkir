@@ -32,6 +32,7 @@ public class AuthController {
                     .body(Map.of("error", "Acceso denegado: tu cuenta está inactiva. Comunícate con la administración del colegio."));
         }
         sesion.iniciar(session, u.getId(), u.getTipo());
+        session.setAttribute("BLENKIR_USER_NAME", u.getNombre());
         return ResponseEntity.ok(datosSesion(u));
     }
 

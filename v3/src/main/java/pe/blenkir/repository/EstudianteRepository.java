@@ -5,5 +5,6 @@ import pe.blenkir.model.*;
 
 public interface EstudianteRepository extends JpaRepository<Estudiante, Long> {
     boolean existsByDni(String dni);
+    java.util.Optional<Estudiante> findByDni(String dni);
     boolean existsByDniAndIdNot(String dni, Long id);
 }

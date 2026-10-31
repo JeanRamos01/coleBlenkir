@@ -22,6 +22,8 @@ const state = {
 let sesion = null; // { usuario, tipo, nombre, idEstudiante }
 let ultimoEstadoJSON = "";
 let temporizadorSync = null;
+let portalApoderado = null;
+let ultimoPortalApoderadoJSON = "";
 
 function hoyISO() {
   const d = new Date();
@@ -92,6 +94,17 @@ function iniciarSincronizacion() {
   temporizadorSync = setInterval(async () => {
     if (!sesion || document.hidden) return;
     try {
+      if (sesion.tipo === "APODERADO") {
+        const nuevoPortal = await api("/apoderado/portal");
+        const json = JSON.stringify(nuevoPortal);
+        if (json !== ultimoPortalApoderadoJSON) {
+          portalApoderado = nuevoPortal;
+          ultimoPortalApoderadoJSON = json;
+          renderPanelApoderado();
+          mostrarToast("Tu portal familiar se actualizó.");
+        }
+        return;
+      }
       if (await sincronizar()) {
         renderTodo();
         mostrarToast("Datos actualizados desde el servidor.");
@@ -99,10 +112,14 @@ function iniciarSincronizacion() {
     } catch (e) { /* se reintenta en el siguiente ciclo */ }
   }, INTERVALO_SINCRONIZACION_MS);
 }
-
 function detenerSincronizacion() {
   if (temporizadorSync) clearInterval(temporizadorSync);
   temporizadorSync = null;
+}
+
+function limpiarEstadoCliente() {
+  Object.keys(state).forEach(clave => { state[clave] = []; });
+  ultimoEstadoJSON = "";
 }
 
 /*  Toast  */
@@ -128,6 +145,8 @@ document.getElementById("formLogin").addEventListener("submit", async (ev) => {
     sessionStorage.setItem("blenkirahora_sesion", JSON.stringify(sesion));
     await iniciarApp();
   } catch (e) {
+    sesion = null;
+    sessionStorage.removeItem("blenkirahora_sesion");
     errorBox.textContent = e.message;
     errorBox.classList.remove("d-none");
   }
@@ -136,6 +155,9 @@ document.getElementById("formLogin").addEventListener("submit", async (ev) => {
 document.getElementById("btnLogout").addEventListener("click", async () => {
   try { await api("/login/logout", "POST"); } catch (_) {}
   sesion = null;
+  portalApoderado = null;
+  ultimoPortalApoderadoJSON = "";
+  limpiarEstadoCliente();
   detenerSincronizacion();
   sessionStorage.removeItem("blenkirahora_sesion");
   document.getElementById("appShell").classList.add("d-none");
@@ -507,24 +529,112 @@ async function renderUsuarios() {
   const tbody = document.getElementById("tbodyUsuarios"); const vacio = document.getElementById("emptyUsuarios"); if (!tbody) return;
   const lista = usuariosPanel.filter(u => `${u.usuario} ${u.nombre} ${u.tipo}`.toLowerCase().includes(q));
   tbody.innerHTML = lista.map(u => {
-    const vinculo = u.tipo === "Alumno" ? (state.estudiantes.find(e=>e.id===u.idEstudiante)?.nombres || `ID ${u.idEstudiante||"—"}`) : u.tipo === "Docente" ? (state.docentes.find(d=>d.id===u.idDocente)?.nombres || `ID ${u.idDocente||"—"}`) : "—";
-    return `<tr><td><strong>${esc(u.usuario)}</strong></td><td>${esc(u.nombre)}</td><td><span class="badge-rol">${esc(u.tipo)}</span></td><td>${esc(vinculo)}</td><td class="text-end"><button class="btn-icon" title="Editar" data-accion="editar-usuario" data-id="${u.id}">✎</button><button class="btn-icon danger" title="Eliminar" data-accion="eliminar-usuario" data-id="${u.id}">✕</button></td></tr>`;
-  }).join(""); vacio.classList.toggle("d-none", lista.length>0);
+    let vinculo = "—";
+    if (u.tipo === "Alumno") vinculo = state.estudiantes.find(e => e.id === u.idEstudiante)?.nombres || `ID ${u.idEstudiante || "—"}`;
+    else if (u.tipo === "Docente") vinculo = state.docentes.find(d => d.id === u.idDocente)?.nombres || `ID ${u.idDocente || "—"}`;
+    else if (u.tipo === "APODERADO") vinculo = (u.vinculosApoderado || []).map(v => {
+      const e = state.estudiantes.find(x => x.id === v.idEstudiante); return e ? `${e.nombres} ${e.apellidos}` : `ID ${v.idEstudiante}`;
+    }).join(", ") || "Sin estudiantes vinculados";
+    const etiquetaRol = u.tipo === "APODERADO" ? "Apoderado" : u.tipo;
+    return `<tr><td><strong>${esc(u.usuario)}</strong></td><td>${esc(u.nombre)}</td><td><span class="badge-rol">${esc(etiquetaRol)}</span></td><td>${esc(vinculo)}</td><td class="text-end"><button class="btn-icon" title="Editar" data-accion="editar-usuario" data-id="${u.id}">✎</button><button class="btn-icon danger" title="Eliminar" data-accion="eliminar-usuario" data-id="${u.id}">✕</button></td></tr>`;
+  }).join("");
+  vacio.classList.toggle("d-none", lista.length > 0);
 }
+
 function actualizarVinculoUsuario() {
-  const tipo=document.getElementById("usrTipo").value, wrap=document.getElementById("usrVinculoWrap"), sel=document.getElementById("usrVinculo");
-  if(typeIsAdmin(tipo)){wrap.classList.add("d-none");sel.innerHTML="";return;}
+  const tipo = document.getElementById("usrTipo").value;
+  const wrap = document.getElementById("usrVinculoWrap");
+  const sel = document.getElementById("usrVinculo");
+  const permisos = document.getElementById("usrPermisosApoderado");
+  const ayuda = document.getElementById("usrVinculoAyuda");
+  const esApoderado = tipo === "APODERADO";
+  permisos.classList.toggle("d-none", !esApoderado);
+  if (typeIsAdmin(tipo)) { wrap.classList.add("d-none"); sel.innerHTML = ""; sel.multiple = false; ayuda.classList.add("d-none"); return; }
   wrap.classList.remove("d-none");
-  if(tipo==="Alumno") { sel.innerHTML='<option value="">Seleccionar estudiante</option>'+state.estudiantes.map(e=>`<option value="${e.id}">${esc(e.nombres+" "+e.apellidos)} — ${esc(e.dni)}</option>`).join(""); }
-  else { sel.innerHTML='<option value="">Seleccionar docente</option>'+state.docentes.map(d=>`<option value="${d.id}">${esc(d.nombres)} — ${esc(d.email)}</option>`).join(""); }
+  sel.multiple = esApoderado;
+  sel.size = esApoderado ? 6 : 1;
+  ayuda.classList.toggle("d-none", !esApoderado);
+  if (tipo === "Alumno" || esApoderado) {
+    sel.innerHTML = (esApoderado ? "" : '<option value="">Seleccionar estudiante</option>') +
+      state.estudiantes.map(e => `<option value="${e.id}">${esc(e.nombres + " " + e.apellidos)} — ${esc(e.dni)}</option>`).join("");
+  } else {
+    sel.innerHTML = '<option value="">Seleccionar docente</option>' + state.docentes.map(d => `<option value="${d.id}">${esc(d.nombres)} — ${esc(d.email)}</option>`).join("");
+  }
 }
-function typeIsAdmin(t){return t==="Administrador";}
-function limpiarFormUsuario(){document.getElementById("formUsuario").reset();document.getElementById("usrId").value="";document.getElementById("usrTipo").value="Administrador";document.getElementById("tituloFormUsuario").textContent="Nuevo usuario";document.getElementById("btnGuardarUsuario").textContent="Crear usuario";document.getElementById("btnCancelarEdicionUsr").classList.add("d-none");actualizarVinculoUsuario();}
-document.getElementById("usrTipo")?.addEventListener("change",actualizarVinculoUsuario);
-document.getElementById("buscarUsuario")?.addEventListener("input",renderUsuarios);
-document.getElementById("btnCancelarEdicionUsr")?.addEventListener("click",limpiarFormUsuario);
-document.getElementById("formUsuario")?.addEventListener("submit",ev=>{ev.preventDefault();intentar(async()=>{const id=document.getElementById("usrId").value,tipo=document.getElementById("usrTipo").value,v=Number(document.getElementById("usrVinculo").value)||null;const body={usuario:document.getElementById("usrUsuario").value.trim(),password:document.getElementById("usrPassword").value,tipo,nombre:document.getElementById("usrNombre").value.trim(),idEstudiante:tipo==="Alumno"?v:null,idDocente:tipo==="Docente"?v:null};if(!body.usuario||!body.nombre||(tipo!=="Administrador"&&!v))return;if(id)await api(`/usuarios/${id}`,"PUT",body);else if(!body.password)return alert("La contraseña es obligatoria para un usuario nuevo.");else await api("/usuarios","POST",body);limpiarFormUsuario();await renderUsuarios();mostrarToast(id?"Usuario actualizado.":"Usuario creado.");});});
-document.getElementById("tbodyUsuarios")?.addEventListener("click",ev=>{const btn=ev.target.closest("button[data-accion]");if(!btn)return;const id=Number(btn.dataset.id),u=usuariosPanel.find(x=>x.id===id);if(!u)return;if(btn.dataset.accion==="editar-usuario"){document.getElementById("usrId").value=u.id;document.getElementById("usrUsuario").value=u.usuario;document.getElementById("usrPassword").value="";document.getElementById("usrTipo").value=u.tipo;document.getElementById("usrNombre").value=u.nombre;actualizarVinculoUsuario();document.getElementById("usrVinculo").value=String(u.idEstudiante||u.idDocente||"");document.getElementById("tituloFormUsuario").textContent="Modificar usuario";document.getElementById("btnGuardarUsuario").textContent="Guardar cambios";document.getElementById("btnCancelarEdicionUsr").classList.remove("d-none");return;}if(btn.dataset.accion==="eliminar-usuario"&&confirm("¿Eliminar esta cuenta de acceso? El registro del estudiante o docente no se eliminará."))intentar(async()=>{await api(`/usuarios/${id}`,"DELETE");await renderUsuarios();mostrarToast("Usuario eliminado.");});});
+function typeIsAdmin(t) { return t === "Administrador"; }
+function limpiarFormUsuario() {
+  document.getElementById("formUsuario").reset();
+  document.getElementById("usrId").value = "";
+  document.getElementById("usrTipo").value = "Administrador";
+  document.getElementById("tituloFormUsuario").textContent = "Nuevo usuario";
+  document.getElementById("btnGuardarUsuario").textContent = "Crear usuario";
+  document.getElementById("btnCancelarEdicionUsr").classList.add("d-none");
+  actualizarVinculoUsuario();
+}
+document.getElementById("usrTipo")?.addEventListener("change", actualizarVinculoUsuario);
+document.getElementById("buscarUsuario")?.addEventListener("input", renderUsuarios);
+document.getElementById("btnCancelarEdicionUsr")?.addEventListener("click", limpiarFormUsuario);
+document.getElementById("formUsuario")?.addEventListener("submit", ev => {
+  ev.preventDefault();
+  intentar(async () => {
+    const id = document.getElementById("usrId").value;
+    const tipo = document.getElementById("usrTipo").value;
+    const seleccionados = Array.from(document.getElementById("usrVinculo").selectedOptions).map(o => Number(o.value)).filter(Boolean);
+    const idVinculo = Number(document.getElementById("usrVinculo").value) || null;
+    const vinculos = tipo === "APODERADO" ? seleccionados.map(idEstudiante => ({
+      idEstudiante,
+      parentesco: document.getElementById("usrParentesco").value,
+      puedeVerNotas: document.getElementById("usrPuedeVerNotas").checked,
+      puedeVerAsistencia: document.getElementById("usrPuedeVerAsistencia").checked,
+      puedeVerAlertas: document.getElementById("usrPuedeVerAlertas").checked
+    })) : [];
+    const body = {
+      usuario: document.getElementById("usrUsuario").value.trim(),
+      password: document.getElementById("usrPassword").value,
+      tipo,
+      nombre: document.getElementById("usrNombre").value.trim(),
+      idEstudiante: tipo === "Alumno" ? idVinculo : null,
+      idDocente: tipo === "Docente" ? idVinculo : null,
+      vinculos
+    };
+    if (!body.usuario || !body.nombre) return;
+    if (tipo === "APODERADO" && vinculos.length === 0) return alert("Selecciona al menos un estudiante para el apoderado.");
+    if (tipo === "Alumno" && !body.idEstudiante) return alert("Selecciona el estudiante vinculado.");
+    if (tipo === "Docente" && !body.idDocente) return alert("Selecciona el docente vinculado.");
+    if (id) await api(`/usuarios/${id}`, "PUT", body);
+    else if (!body.password) return alert("La contraseña es obligatoria para un usuario nuevo.");
+    else await api("/usuarios", "POST", body);
+    limpiarFormUsuario(); await renderUsuarios(); mostrarToast(id ? "Usuario actualizado." : "Usuario creado.");
+  });
+});
+document.getElementById("tbodyUsuarios")?.addEventListener("click", ev => {
+  const btn = ev.target.closest("button[data-accion]"); if (!btn) return;
+  const id = Number(btn.dataset.id), u = usuariosPanel.find(x => x.id === id); if (!u) return;
+  if (btn.dataset.accion === "editar-usuario") {
+    document.getElementById("usrId").value = u.id;
+    document.getElementById("usrUsuario").value = u.usuario;
+    document.getElementById("usrPassword").value = "";
+    document.getElementById("usrTipo").value = u.tipo;
+    document.getElementById("usrNombre").value = u.nombre;
+    actualizarVinculoUsuario();
+    const datosVinculos = u.vinculosApoderado || [];
+    const ids = u.tipo === "APODERADO" ? datosVinculos.map(v => Number(v.idEstudiante)) : [Number(u.idEstudiante || u.idDocente)];
+    Array.from(document.getElementById("usrVinculo").options).forEach(o => { o.selected = ids.includes(Number(o.value)); });
+    if (u.tipo === "APODERADO" && datosVinculos.length) {
+      document.getElementById("usrParentesco").value = datosVinculos[0].parentesco || "Otro";
+      document.getElementById("usrPuedeVerNotas").checked = datosVinculos.every(v => v.puedeVerNotas);
+      document.getElementById("usrPuedeVerAsistencia").checked = datosVinculos.every(v => v.puedeVerAsistencia);
+      document.getElementById("usrPuedeVerAlertas").checked = datosVinculos.every(v => v.puedeVerAlertas);
+    }
+    document.getElementById("tituloFormUsuario").textContent = "Modificar usuario";
+    document.getElementById("btnGuardarUsuario").textContent = "Guardar cambios";
+    document.getElementById("btnCancelarEdicionUsr").classList.remove("d-none");
+    return;
+  }
+  if (btn.dataset.accion === "eliminar-usuario" && confirm("¿Eliminar esta cuenta de acceso? El registro del estudiante o docente no se eliminará.")) {
+    intentar(async () => { await api(`/usuarios/${id}`, "DELETE"); await renderUsuarios(); mostrarToast("Usuario eliminado."); });
+  }
+});
 
 /* Asignación de estudiantes a cursos */
 function renderAsignacion() {
@@ -906,6 +1016,43 @@ function renderMisNotas() {
   }
 }
 
+/* PORTAL DE APODERADOS: solo consume el DTO filtrado por las relaciones y permisos del servidor. */
+function renderPanelApoderado() {
+  const contenedor = document.getElementById("apoderadoPortalContenido");
+  if (!contenedor || !portalApoderado) return;
+  const alumnos = portalApoderado.estudiantes || [];
+  if (!alumnos.length) {
+    contenedor.innerHTML = '<div class="card panel-card"><p class="mb-0">Tu cuenta todavía no tiene estudiantes vinculados. Comunícate con la administración del colegio.</p></div>';
+    return;
+  }
+  contenedor.innerHTML = alumnos.map(e => {
+    const totalAsistencia = e.presentes + e.tardanzas + e.inasistencias;
+    const porcentaje = totalAsistencia ? Math.round(((e.presentes + e.tardanzas) / totalAsistencia) * 100) : null;
+    const notasHtml = e.puedeVerNotas
+      ? (e.notas.length ? `<div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr><th>Curso</th><th>Bimestre</th><th>Nota</th><th>Fecha</th></tr></thead><tbody>${e.notas.map(n => `<tr><td>${esc(n.curso)}</td><td>${esc(n.bimestre)}</td><td><span class="score-pill ${claseParaNota(Number(n.calificacion))}">${Number(n.calificacion).toFixed(1)}</span></td><td>${esc(n.fecha || "—")}</td></tr>`).join("")}</tbody></table></div>` : '<p class="apoderado-sin-datos mb-0">Todavía no se registran calificaciones.</p>')
+      : '<p class="apoderado-permiso mb-0">Tu cuenta no tiene permiso para consultar las calificaciones de este estudiante.</p>';
+    const asistenciaHtml = e.puedeVerAsistencia
+      ? (e.asistencias.length ? `<div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr><th>Curso</th><th>Fecha</th><th>Estado</th></tr></thead><tbody>${e.asistencias.slice(0, 12).map(a => `<tr><td>${esc(a.curso)}</td><td>${esc(a.fecha || "—")}</td><td>${esc(a.estado)}</td></tr>`).join("")}</tbody></table></div><small class="text-muted">Se muestran los últimos 12 registros.</small>` : '<p class="apoderado-sin-datos mb-0">Todavía no se registran asistencias.</p>')
+      : '<p class="apoderado-permiso mb-0">Tu cuenta no tiene permiso para consultar la asistencia de este estudiante.</p>';
+    const alertasHtml = e.puedeVerAlertas
+      ? (e.alertas.length ? e.alertas.map(a => `<div class="apoderado-alerta"><strong>${esc(a.tipo)}</strong> · ${esc(a.mensaje)}<small>${esc(a.fecha || "Fecha no disponible")}</small></div>`).join("") : '<p class="apoderado-sin-datos mb-0">No hay alertas académicas o de asistencia por mostrar.</p>')
+      : '<p class="apoderado-permiso mb-0">Tu cuenta no tiene permiso para consultar alertas.</p>';
+    return `<article class="apoderado-estudiante">
+      <header class="apoderado-estudiante-cabecera"><div><h3 class="apoderado-estudiante-nombre">${esc(e.nombres)} ${esc(e.apellidos)}</h3><div class="apoderado-estudiante-meta">${esc(e.grado)} · Sección ${esc(e.seccion)} · DNI ${esc(e.dni)} · Vínculo: ${esc(e.parentesco)}</div></div><span class="status-pill ${e.estado === "activo" ? "activo" : "inactivo"}">${e.estado === "activo" ? "Activo" : "Inactivo"}</span></header>
+      <div class="apoderado-resumen">
+        <div class="apoderado-kpi"><span>Promedio registrado</span><strong>${e.puedeVerNotas && e.promedio != null ? Number(e.promedio).toFixed(1) : "—"}</strong></div>
+        <div class="apoderado-kpi"><span>Presentes</span><strong>${e.puedeVerAsistencia ? e.presentes : "—"}</strong></div>
+        <div class="apoderado-kpi"><span>Tardanzas</span><strong>${e.puedeVerAsistencia ? e.tardanzas : "—"}</strong></div>
+        <div class="apoderado-kpi"><span>Inasistencias</span><strong>${e.puedeVerAsistencia ? e.inasistencias : "—"}</strong></div>
+      </div>
+      ${e.puedeVerAsistencia && porcentaje != null ? `<div class="px-4 pb-3"><small class="text-muted">Asistencia registrada: <strong>${porcentaje}%</strong></small></div>` : ""}
+      <section class="apoderado-bloque"><h3>📘 Rendimiento académico</h3>${notasHtml}</section>
+      <section class="apoderado-bloque"><h3>🗓️ Asistencia</h3>${asistenciaHtml}</section>
+      <section class="apoderado-bloque"><h3>🔔 Alertas</h3>${alertasHtml}</section>
+    </article>`;
+  }).join("");
+}
+
 /* INICIO */
 function renderTodo() {
   renderEstudiantes();
@@ -917,30 +1064,42 @@ function renderTodo() {
   renderReportes();
   renderDashboard();
   renderMisNotas();
+  actualizarVinculoUsuario();
   renderUsuarios();
 }
 
 async function iniciarApp() {
-  await sincronizar(true); // trae los datos desde PostgreSQL
+  const esApoderado = sesion.tipo === "APODERADO";
+  if (esApoderado) {
+    // Evita conservar en memoria información general de una sesión anterior.
+    limpiarEstadoCliente();
+    portalApoderado = await api("/apoderado/portal");
+    ultimoPortalApoderadoJSON = JSON.stringify(portalApoderado);
+  } else {
+    await sincronizar(true); // estado general para roles internos/alumno
+  }
 
   document.getElementById("pantallaLogin").classList.add("d-none");
   document.getElementById("appShell").classList.remove("d-none");
   document.getElementById("userNombre").textContent = sesion.nombre;
-  document.getElementById("userRol").textContent = sesion.tipo;
+  document.getElementById("userRol").textContent = esApoderado ? "Apoderado" : sesion.tipo;
 
-  const nombreCorto = (sesion.nombre || "usuario").trim().split(/\\s+/)[0];
+  const nombreCorto = (sesion.nombre || "usuario").trim().split(/\s+/)[0];
   document.getElementById("welcomeTitle").textContent = `¡Bienvenido${sesion.tipo === "Alumno" ? "" : " de nuevo"}, ${nombreCorto}!`;
-  document.getElementById("welcomeText").textContent =
-    `Has iniciado sesión como ${sesion.tipo.toLowerCase()}. Desde aquí puedes consultar y gestionar la información académica de Blenkir.`;
+  document.getElementById("welcomeText").textContent = esApoderado
+    ? "Este es tu espacio privado para consultar la información de los estudiantes vinculados a tu cuenta."
+    : `Has iniciado sesión como ${sesion.tipo.toLowerCase()}. Desde aquí puedes consultar y gestionar la información académica de Blenkir.`;
 
   aplicarPermisosPorRol();
-  document.getElementById("asisFecha").value = hoyISO();
-
-  renderTodo();
-  irAVista(sesion.tipo === "Alumno" ? "misnotas" : "dashboard");
+  if (!esApoderado) {
+    document.getElementById("asisFecha").value = hoyISO();
+    renderTodo();
+  } else {
+    renderPanelApoderado();
+  }
+  irAVista(sesion.tipo === "Alumno" ? "misnotas" : esApoderado ? "portal-apoderado" : "dashboard");
   iniciarSincronizacion();
 }
-
 document.addEventListener("DOMContentLoaded", async () => {
   inicializarNavegacion();
 

@@ -7,6 +7,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 import pe.blenkir.service.NoEncontradoException;
 import pe.blenkir.service.ReglaNegocioException;
 
@@ -23,6 +24,12 @@ public class ManejadorErrores {
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .distinct().collect(Collectors.joining("; "));
         return respuesta(HttpStatus.BAD_REQUEST, detalle.isBlank() ? "Datos inválidos." : detalle);
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, String>> estadoHttp(ResponseStatusException ex) {
+        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+        return respuesta(status, ex.getReason() == null ? "No tienes autorización para esta operación." : ex.getReason());
     }
 
     @ExceptionHandler(ReglaNegocioException.class)

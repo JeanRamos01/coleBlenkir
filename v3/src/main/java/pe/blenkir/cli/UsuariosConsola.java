@@ -5,6 +5,8 @@ import pe.blenkir.model.Usuario;
 import pe.blenkir.service.UsuarioService;
 
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Gestión de las cuentas con las que se inicia sesión en la web. */
 @Component
@@ -12,12 +14,15 @@ public class UsuariosConsola extends ModuloConsola {
 
     private final UsuarioService service;
     private final EstudiantesConsola estudiantes;
+    private final DocentesConsola docentes;
     private final Nombres nombres;
 
-    public UsuariosConsola(Entrada in, UsuarioService service, EstudiantesConsola estudiantes, Nombres nombres) {
+    public UsuariosConsola(Entrada in, UsuarioService service, EstudiantesConsola estudiantes,
+                           DocentesConsola docentes, Nombres nombres) {
         super(in);
         this.service = service;
         this.estudiantes = estudiantes;
+        this.docentes = docentes;
         this.nombres = nombres;
     }
 
@@ -41,9 +46,15 @@ public class UsuariosConsola extends ModuloConsola {
 
     private void listar() {
         Map<Long, String> est = nombres.estudiantes();
-        Tabla.imprimir(new String[]{"ID", "Usuario", "Tipo", "Nombre", "Estudiante vinculado"},
-                service.listar().stream().map(u -> new String[]{String.valueOf(u.getId()), u.getUsuario(), u.getTipo(),
-                        u.getNombre(), u.getIdEstudiante() == null ? "" : est.getOrDefault(u.getIdEstudiante(), "?")}).toList());
+        Tabla.imprimir(new String[]{"ID", "Usuario", "Tipo", "Nombre", "Estudiante(s) vinculado(s)"},
+                service.listar().stream().map(u -> {
+                    String vinculado = u.getIdEstudiante() == null ? "" : est.getOrDefault(u.getIdEstudiante(), "?");
+                    if ("APODERADO".equals(u.getTipo())) {
+                        vinculado = service.listarEstudiantesVinculados(u.getId()).stream()
+                                .map(id -> est.getOrDefault(id, "ID " + id)).collect(java.util.stream.Collectors.joining(", "));
+                    }
+                    return new String[]{String.valueOf(u.getId()), u.getUsuario(), u.getTipo(), u.getNombre(), vinculado};
+                }).toList());
     }
 
     private void crear() {
@@ -59,10 +70,17 @@ public class UsuariosConsola extends ModuloConsola {
             estudiantes.listar("");
             idEstudiante = in.id("ID del estudiante vinculado");
         }
+        if ("Docente".equals(tipo)) {
+            docentes.listar();
+            idDocente = in.id("ID del docente vinculado");
+        }
+        if ("APODERADO".equals(tipo)) {
+            var vinculos = pedirVinculosApoderado();
+            ok("Cuenta de apoderado creada con ID " + service.crearApoderado(usuario, password, nombre, vinculos).getId() + ".");
+            return;
+        }
 
-        ok("Usuario creado con ID " +
-                service.crear(usuario, password, tipo, nombre,
-                        idEstudiante, idDocente).getId() + ".");
+        ok("Usuario creado con ID " + service.crear(usuario, password, tipo, nombre, idEstudiante, idDocente).getId() + ".");
     }
 
     private void modificar() {
@@ -86,18 +104,41 @@ public class UsuariosConsola extends ModuloConsola {
                     Integer.MAX_VALUE,
                     idEstudiante == null ? 1 : idEstudiante.intValue()) * 1L;
         }
+        if ("Docente".equals(tipo)) {
+            docentes.listar();
+            idDocente = in.id("ID del docente vinculado");
+        }
 
-        service.actualizar(
-                actual.getId(),
-                usuario,
-                password,
-                tipo,
-                nombre,
-                idEstudiante,
-                idDocente
-        );
-
+        if ("APODERADO".equals(tipo)) {
+            var vinculos = pedirVinculosApoderado();
+            service.actualizarApoderado(actual.getId(), usuario, password, tipo, nombre,
+                    idEstudiante, idDocente, vinculos);
+        } else {
+            service.actualizar(actual.getId(), usuario, password, tipo, nombre, idEstudiante, idDocente);
+        }
         ok("Usuario actualizado.");
+    }
+
+    /** Captura varios estudiantes y los permisos comunes para una cuenta de apoderado. */
+    private List<UsuarioService.VinculoApoderadoInput> pedirVinculosApoderado() {
+        estudiantes.listar("");
+        String entradaIds = in.texto("IDs de estudiantes vinculados (separados por coma)");
+        List<Long> ids = new ArrayList<>();
+        for (String parte : entradaIds.split(",")) {
+            try {
+                ids.add(Long.parseLong(parte.trim()));
+            } catch (NumberFormatException ex) {
+                throw new IllegalArgumentException("Ingresa IDs numéricos separados por coma.");
+            }
+        }
+        String parentesco = in.elegir("Parentesco", List.of(
+                "Madre", "Padre", "Tutor legal", "Familiar autorizado", "Otro"));
+        boolean notas = in.confirmar("¿Puede consultar las calificaciones?");
+        boolean asistencia = in.confirmar("¿Puede consultar la asistencia?");
+        boolean alertas = in.confirmar("¿Puede consultar las alertas?");
+        return ids.stream()
+                .map(id -> new UsuarioService.VinculoApoderadoInput(id, parentesco, notas, asistencia, alertas))
+                .toList();
     }
 
     private void eliminar() {
